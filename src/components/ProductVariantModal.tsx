@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { ImageOff, Loader2Icon } from "lucide-react";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 interface ProductDialogProps {
   product_id: string | null;
@@ -31,6 +32,8 @@ interface ProductVariant {
   discount_flat_amt: number | null;
   product_availability: boolean;
   variant_album: Photo[];
+  product_variant_id: string;
+  product_id: string
 }
 
 interface Product {
@@ -70,8 +73,21 @@ export function ProductDialog({ open, onOpenChange, product_id }: ProductDialogP
     }
   }, [open, product_id]);
 
+  const handleSubmit = async () => {
+    try {
+      const payload = {
+        productId: selectedVariant?.product_id.toString(), variantId: selectedVariant?.product_variant_id.toString(), productName: data?.product_name, variantName: selectedVariant?.product_variant_name, price: selectedVariant?.selling_price, image: data?.productpic
+      }
+      console.log(payload)
+      const res = await api.post('/cart/add', payload);
+      console.log(res.data);
+      toast.success(res.data.message)
+    } catch (error) {
+      console.log(error)
+      toast.error("Add to cart failed")
+    }
 
-
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -112,7 +128,7 @@ export function ProductDialog({ open, onOpenChange, product_id }: ProductDialogP
               </div>
 
               <DialogFooter>
-                <Button className="w-full" disabled={!selectedVariant}>
+                <Button className="w-full" disabled={!selectedVariant} onClick={handleSubmit}>
                   Add to Cart
                 </Button>
               </DialogFooter>

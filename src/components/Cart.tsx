@@ -7,41 +7,52 @@ import {
     SheetTitle,
 } from "@/components/ui/sheet"
 import { Button } from "./ui/button"
+import { useEffect } from "react";
+import api from "@/api/axios";
+import useCart from "@/context/CartContext";
+import { toast } from "sonner";
 
 interface CartProps {
     open: boolean
     onOpenChange: (open: boolean) => void
 }
-const cartItems = [
-    {
-        variantId: "v1",
-        productName: "Espresso",
-        variantName: "Large",
-        image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=300",
-        currency: "AUD",
-        price: 6.0,
-        quantity: 2,
-    },
-    {
-        variantId: "v2",
-        productName: "Cappuccino",
-        variantName: "Regular",
-        image: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=300",
-        currency: "AUD",
-        price: 5.5,
-        quantity: 1,
-    },
-    {
-        variantId: "v3",
-        productName: "Veg Sandwich",
-        variantName: "Classic",
-        image: "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=300",
-        currency: "AUD",
-        price: 8.5,
-        quantity: 1,
-    },
-];
+
 const Cart = ({ open, onOpenChange }: CartProps) => {
+    const { cartItems, setCartItems } = useCart();
+
+    const fetchCart = async () => {
+        const { data } = await api.get("/cart/getCart");
+        setCartItems(data.data.items);
+    };
+
+    const handleIncrease = async (variantId: string) => {
+        try {
+            const { data } = await api.patch(`/cart/increase/${variantId}`);
+            toast.success(data.message);
+
+            await fetchCart();
+        } catch (error) {
+            toast.error("Failed to update cart");
+        }
+    };
+
+    const handleDecrease = async (variantId: string) => {
+        try {
+            const { data } = await api.patch(`/cart/decrease/${variantId}`);
+            toast.success(data.message);
+
+            await fetchCart();
+        } catch (error) {
+            toast.error("Failed to update cart");
+        }
+    };
+
+    useEffect(() => {
+        if (open) {
+            fetchCart();
+        }
+    }, [open]);
+
     return (
         <div className="flex flex-wrap gap-2 ">
             <Sheet open={open} onOpenChange={onOpenChange}>
@@ -74,14 +85,14 @@ const Cart = ({ open, onOpenChange }: CartProps) => {
                                     </p>
 
                                     <p className="mt-1 font-semibold">
-                                        {item.currency} {item.price}
+                                        AUD {item.price}
                                     </p>
                                 </div>
 
                                 <div className="flex items-center gap-2">
-                                    <Button size="icon" variant="outline">-</Button>
+                                    <Button size="icon" variant="outline" onClick={() => handleDecrease(item.variantId)}>-</Button>
                                     <span>{item.quantity}</span>
-                                    <Button size="icon" variant="outline">+</Button>
+                                    <Button size="icon" variant="outline" onClick={() => handleIncrease(item.variantId)}>+</Button>
                                 </div>
                             </div>
                         ))}
