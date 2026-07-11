@@ -20,7 +20,7 @@ export default function MenuPage() {
   const [data, setData] = useState<any[] | null>(null);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
-  const { cartItems } = useCart();
+  const { cartItems, addToCart } = useCart();
   const [cartOpen, setCartOpen] = useState(false);
   const [sortOrder, setSortOrder] = useState([
     "selling_price",
@@ -71,31 +71,32 @@ export default function MenuPage() {
   );
 
   const handleClick = async (item: any) => {
-   try {
-     if (item.total_variants > 1) {
-      setSelectedProductId(item.product_id)
-      setOpen(true);
-      return
-    } else {
-      const { data } = await api.get(`/products/${item.product_id}`);
-      console.log(data)
-      const variant = data.product_variant_inventories[0];
-      await api.post('/cart/add', {
-        productId: variant.product_id.toString(),
-        variantId: variant.product_variant_id.toString(),
-        productName: data.product_name.toString(),
-        variantName: variant.product_variant_name.toString(),
-        price: variant.selling_price,
-        image: data.productpic,
-      })
-      toast.success("Added to cart");
-      
+    try {
+      if (item.total_variants > 1) {
+        setSelectedProductId(item.product_id)
+        setOpen(true);
+        return
+      } else {
+        const { data } = await api.get(`/products/${item.product_id}`);
+        console.log(data)
+        const variant = data.product_variant_inventories[0];
+        const payload: CartItem = {
+          productId: variant.product_id.toString(),
+          variantId: variant.product_variant_id.toString(),
+          productName: data.product_name.toString(),
+          variantName: variant.product_variant_name.toString(),
+          price: variant.selling_price,
+          image: data.productpic,
+          quantity: 1
+        }
+        await addToCart(payload)
+
+      }
+    } catch (error) {
+      console.log(error)
+      toast.error("Failed to add cart");
+
     }
-  } catch (error) {
-    console.log(error)
-     toast.error("Failed to add cart");
-    
-   }
   }
   return (
     <main className="container mx-auto px-4 py-8">

@@ -11,6 +11,7 @@ import { useEffect } from "react";
 import api from "@/api/axios";
 import useCart from "@/context/CartContext";
 import { toast } from "sonner";
+import { ImageOff } from "lucide-react";
 
 interface CartProps {
     open: boolean
@@ -23,12 +24,12 @@ const Cart = ({ open, onOpenChange }: CartProps) => {
     const handleIncrease = async (variantId: string) => {
         try {
             increaseQty(variantId)
-            
+
         } catch (error) {
             toast.error("Failed to update cart");
         }
     };
-    
+
     const handleDecrease = async (variantId: string) => {
         try {
             decreaseQty(variantId)
@@ -61,11 +62,9 @@ const Cart = ({ open, onOpenChange }: CartProps) => {
                                 key={item.variantId}
                                 className="flex items-center gap-3 rounded-lg border p-3"
                             >
-                                <img
-                                    src={item.image}
-                                    alt={item.productName}
-                                    className="h-16 w-16 rounded-md object-cover"
-                                />
+
+                                {item.image ? <img src={item.image} className="h-16 w-16 rounded-md object-cover" /> : <ImageOff className="h-16 w-16 rounded-md object-cover" />}
+
 
                                 <div className="flex-1">
                                     <h4 className="font-medium">{item.productName}</h4>
