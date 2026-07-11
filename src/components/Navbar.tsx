@@ -19,7 +19,7 @@ export default function Navbar() {
   const { user } = useAuth();
 
   return (
-    <header className="border-b bg-background">
+    <header className="border-b ">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
         <NavLink to="/" className="text-lg font-semibold">
           Twirll Cafe
@@ -47,7 +47,7 @@ export default function Navbar() {
         <div className="flex items-center gap-3">
           {user && (
             <div className="hidden md:flex items-center gap-2 rounded-full border border-green-500/30 bg-green-500/10 px-3 py-1">
-              <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+              <span className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
               <span className="text-xs font-medium text-green-600">
                 Logged In
               </span>
