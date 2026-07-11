@@ -18,40 +18,29 @@ interface CartProps {
 }
 
 const Cart = ({ open, onOpenChange }: CartProps) => {
-    const { cartItems, setCartItems } = useCart();
-
-    const fetchCart = async () => {
-        const { data } = await api.get("/cart/getCart");
-        setCartItems(data.data.items);
-    };
+    const { cartItems, increaseQty, decreaseQty } = useCart();
 
     const handleIncrease = async (variantId: string) => {
         try {
-            const { data } = await api.patch(`/cart/increase/${variantId}`);
-            toast.success(data.message);
-
-            await fetchCart();
+            increaseQty(variantId)
+            
         } catch (error) {
             toast.error("Failed to update cart");
         }
     };
-
+    
     const handleDecrease = async (variantId: string) => {
         try {
-            const { data } = await api.patch(`/cart/decrease/${variantId}`);
-            toast.success(data.message);
-
-            await fetchCart();
+            decreaseQty(variantId)
         } catch (error) {
             toast.error("Failed to update cart");
         }
     };
 
-    useEffect(() => {
-        if (open) {
-            fetchCart();
-        }
-    }, [open]);
+    const total = cartItems.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0
+    );
 
     return (
         <div className="flex flex-wrap gap-2 ">
@@ -101,7 +90,7 @@ const Cart = ({ open, onOpenChange }: CartProps) => {
                     <div className="border-t pt-4">
                         <div className="mb-4 flex justify-between font-semibold">
                             <span>Total</span>
-                            <span>AUD 25.50</span>
+                            <span>AUD {total.toFixed(2)}</span>
                         </div>
 
                         <SheetFooter>

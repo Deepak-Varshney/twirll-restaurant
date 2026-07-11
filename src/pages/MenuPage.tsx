@@ -4,9 +4,11 @@ import ItemCard from "@/components/ItemCard";
 import { ProductDialog } from "@/components/ProductVariantModal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import useCart, { type CartItem } from "@/context/CartContext";
 import { sortItems } from "@/lib/sortItems";
 import { Loader2Icon, ShoppingCartIcon } from "lucide-react";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 const sortOptions = [
   { label: "Price", value: "selling_price" },
   { label: "Availability", value: "product_availability" },
@@ -18,6 +20,7 @@ export default function MenuPage() {
   const [data, setData] = useState<any[] | null>(null);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
+  const { cartItems } = useCart();
   const [cartOpen, setCartOpen] = useState(false);
   const [sortOrder, setSortOrder] = useState([
     "selling_price",
@@ -62,7 +65,38 @@ export default function MenuPage() {
       </div>
     );
   }
+  const cartCount = cartItems.reduce(
+    (sum, item) => sum + item.quantity,
+    0
+  );
 
+  const handleClick = async (item: any) => {
+   try {
+     if (item.total_variants > 1) {
+      setSelectedProductId(item.product_id)
+      setOpen(true);
+      return
+    } else {
+      const { data } = await api.get(`/products/${item.product_id}`);
+      console.log(data)
+      const variant = data.product_variant_inventories[0];
+      await api.post('/cart/add', {
+        productId: variant.product_id.toString(),
+        variantId: variant.product_variant_id.toString(),
+        productName: data.product_name.toString(),
+        variantName: variant.product_variant_name.toString(),
+        price: variant.selling_price,
+        image: data.productpic,
+      })
+      toast.success("Added to cart");
+      
+    }
+  } catch (error) {
+    console.log(error)
+     toast.error("Failed to add cart");
+    
+   }
+  }
   return (
     <main className="container mx-auto px-4 py-8">
       <div className="flex flex-col gap-3">
@@ -72,7 +106,7 @@ export default function MenuPage() {
           <Button variant="secondary" className="relative p-2 rounded-full transition" onClick={() => setCartOpen(true)}>
             <ShoppingCartIcon />
             <Badge className="absolute -top-1 -right-1 items-center justify-center rounded-full bg-primary text-xs font-bold text-muted">
-              1
+              {cartCount}
             </Badge>
           </Button>
         </div>
@@ -105,10 +139,7 @@ export default function MenuPage() {
             <ItemCard
               key={item.product_id}
               data={item}
-              onClick={() => {
-                setSelectedProductId(item.product_id);
-                setOpen(true);
-              }}
+              onClick={() => { handleClick(item) }}
             />
           ))
         }

@@ -1,4 +1,3 @@
-import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -9,11 +8,12 @@ import {
 } from "@/components/ui/card"
 import {
   Field,
+  FieldDescription,
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import api from "@/api/axios"
 import { toast } from "sonner"
 import { useNavigate } from "react-router-dom"
@@ -33,11 +33,9 @@ export function LoginForm() {
       const { data } = await api.post('/auth/login', {
         email, password
       })
-      console.log(data)
       if (data.status === "success") {
         toast.success("Login Success")
         navigate("/menu");
-        console.log("Data inside if: ", data.data.user)
         setUser(data.data.user)
       }
     } catch (error: any) {
@@ -51,7 +49,7 @@ export function LoginForm() {
 
 
   return (
-    <div className="flex flex-col gap-6 md:p-10 px-6">
+    <div className="flex flex-col gap-6 md:p-20 px-6">
       <Card>
         <CardHeader>
           <CardTitle>Login to your account</CardTitle>
@@ -82,6 +80,9 @@ export function LoginForm() {
               <Field>
                 <Button type="submit" disabled={loading}>Login</Button>
               </Field>
+              <FieldDescription className="text-center">
+                Don't have an account? <a href="/signup">Signup</a>
+              </FieldDescription>
             </FieldGroup>
           </form>
         </CardContent>

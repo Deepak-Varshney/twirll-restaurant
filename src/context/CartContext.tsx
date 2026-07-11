@@ -1,4 +1,6 @@
-import { createContext, useContext, useState } from "react";
+import api from "@/api/axios";
+import { createContext, useContext, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export interface CartItem {
     productId: string;
@@ -7,47 +9,77 @@ export interface CartItem {
     variantName: string;
     image?: string;
     price: number;
-    currency: string;
     quantity: number;
 }
 
 interface CartContextType {
     cartItems: CartItem[];
     addToCart: (item: CartItem) => void;
-    removeFromCart: (variantId: string) => void;
     increaseQty: (variantId: string) => void;
     decreaseQty: (variantId: string) => void;
-    clearCart: () => void;
     setCartItems: React.Dispatch<React.SetStateAction<CartItem[]>>;
 }
 
 export const CartContext = createContext<CartContextType>({
     cartItems: [],
     addToCart: () => { },
-    removeFromCart: () => { },
     increaseQty: () => { },
     decreaseQty: () => { },
-    clearCart: () => { },
-    setCartItems:()=>{}
+    setCartItems: () => { }
 })
 
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
-    const addToCart = (item: CartItem) => { }
-    const removeFromCart = (variantId: string) => { }
-    const increaseQty = (variantId: string) => { }
-    const decreaseQty = (variantId: string) => { }
-    const clearCart = () => {
-        setCartItems([])
+    const fetchCart = async () => {
+        try {
+            const { data } = await api.get("/cart/getCart");
+            setCartItems(data.data.items);
+        } catch (error) {
+            console.log(error);
+        }
+    };
+    const increaseQty = async (variantId: string) => {
+        try {
+            const { data } = await api.patch(`/cart/increase/${variantId}`);
+            toast.success(data.message);
+            await fetchCart();
+        } catch (error) {
+            toast.error("Failed to update cart");
+        }
     }
+
+    const decreaseQty = async (variantId: string) => {
+        try {
+            const { data } = await api.patch(`/cart/decrease/${variantId}`);
+            await fetchCart();
+            toast.success(data.message);
+
+        } catch (error) {
+            toast.error("Failed to update cart");
+        }
+    }
+
+    const addToCart = async (item: CartItem) => {
+        try {
+            const { data } = await api.post("/cart/add", item);
+            await fetchCart();
+            toast.success(data.message);
+
+        } catch (error) {
+            toast.error("Failed to add cart");
+        }
+    }
+
+
+    useEffect(() => {
+        fetchCart();
+    }, [])
     return (
         <CartContext.Provider value={{
             cartItems,
             addToCart,
-            removeFromCart,
             increaseQty,
             decreaseQty,
-            clearCart,
             setCartItems
         }}>
             {children}
@@ -55,6 +87,6 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     )
 }
 
-export default function useCart(){
+export default function useCart() {
     return useContext(CartContext)
 }

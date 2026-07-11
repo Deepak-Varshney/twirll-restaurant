@@ -8,6 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import useCart, { type CartItem } from "@/context/CartContext";
 import { ImageOff, Loader2Icon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -52,13 +53,13 @@ export function ProductDialog({ open, onOpenChange, product_id }: ProductDialogP
 
   const [data, setData] = useState<Product | null>(null);
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
+  const { addToCart } = useCart();
   useEffect(() => {
     async function fetchProductData() {
       try {
         setData(null);
-        setSelectedVariant(null);
-        setLoading(true)
+        setSelectedVariant(null); setLoading(true)
         const { data } = await api.get(`/products/${product_id}`)
         setData(data)
 
@@ -74,20 +75,25 @@ export function ProductDialog({ open, onOpenChange, product_id }: ProductDialogP
   }, [open, product_id]);
 
   const handleSubmit = async () => {
-    try {
-      const payload = {
-        productId: selectedVariant?.product_id.toString(), variantId: selectedVariant?.product_variant_id.toString(), productName: data?.product_name, variantName: selectedVariant?.product_variant_name, price: selectedVariant?.selling_price, image: data?.productpic
-      }
-      console.log(payload)
-      const res = await api.post('/cart/add', payload);
-      console.log(res.data);
-      toast.success(res.data.message)
-    } catch (error) {
-      console.log(error)
-      toast.error("Add to cart failed")
+    if (!selectedVariant || !data) {
+      toast.error("Please select a variant");
+      return;
     }
 
-  }
+    const payload: CartItem = {
+      productId: selectedVariant.product_id.toString(),
+      variantId: selectedVariant.product_variant_id.toString(),
+      productName: data.product_name.toString(),
+      variantName: selectedVariant.product_variant_name.toString(),
+      price: selectedVariant.selling_price,
+      image: data.productpic?.toString(),
+      quantity: 1,
+    };
+
+    addToCart(payload);
+    setSelectedVariant(null);
+    onOpenChange(false)
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

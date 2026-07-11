@@ -2,24 +2,11 @@ import { LogOut } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu"
 import { Avatar, AvatarFallback } from "./ui/avatar"
 import useAuth from "@/context/AuthContext"
-import { useNavigate } from "react-router-dom"
 import { Button } from "./ui/button"
-import api from "@/api/axios"
 
 const UserMenu = () => {
-    const { user, setUser } = useAuth();
-    const navigate = useNavigate();
-    const handleLogout = async () => {
-        try {
-            await api.post('/auth/logout');
-            setUser(null)
-            navigate('/')
-
-        } catch (error: any) {
-            console.log(error.message);
-        }
-    }
-
+    const { user, logout } = useAuth();
+  
     return (
         <div>
             <DropdownMenu>
@@ -61,7 +48,7 @@ const UserMenu = () => {
                     <DropdownMenuSeparator />
 
                     <DropdownMenuItem
-                        onClick={handleLogout}
+                        onClick={logout}
                         className="cursor-pointer text-red-600 focus:text-red-600"
                     >
                         <LogOut className="mr-2 h-4 w-4" />
