@@ -33,11 +33,12 @@ export function LoginForm() {
       const { data } = await api.post('/auth/login', {
         email, password
       })
-
+      console.log(data)
       if (data.status === "success") {
         toast.success("Login Success")
-        navigate("/menu", { replace: true });
-        setUser(data.user)
+        navigate("/menu");
+        console.log("Data inside if: ", data.data.user)
+        setUser(data.data.user)
       }
     } catch (error: any) {
       toast.error(

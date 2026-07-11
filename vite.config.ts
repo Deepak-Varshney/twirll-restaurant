@@ -10,9 +10,5 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  server: {
-    proxy: {
-      '/api': 'https://twrill-backend.onrender.com/'
-    }
-  }
+ 
 })

@@ -31,7 +31,7 @@ const UserMenu = () => {
                     >
                         <Avatar className="h-10 w-10">
                             <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
-                                {user.name.toUpperCase().slice(0, 2)}
+                                {user?.name?.toUpperCase().slice(0, 2)}
                             </AvatarFallback>
                         </Avatar>
                     </Button>
@@ -44,16 +44,16 @@ const UserMenu = () => {
                     <div className="flex items-center gap-3 rounded-md p-2">
                         <Avatar className="h-10 w-10">
                             <AvatarFallback className="bg-primary text-primary-foreground">
-                                {user.name.toUpperCase().slice(0, 2)}
+                                {user?.name?.toUpperCase().slice(0, 2)}
                             </AvatarFallback>
                         </Avatar>
 
                         <div className="flex flex-col overflow-hidden">
                             <span className="font-medium truncate">
-                                {user.name}
+                                {user?.name}
                             </span>
                             <span className="text-muted-foreground text-sm truncate">
-                                {user.email}
+                                {user?.email}
                             </span>
                         </div>
                     </div>
