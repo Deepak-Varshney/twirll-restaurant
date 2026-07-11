@@ -20,18 +20,12 @@ import { useNavigate } from "react-router-dom"
 import useAuth from "@/context/AuthContext"
 
 export function LoginForm() {
-  const { user, setUser } = useAuth()
+  const { setUser } = useAuth()
   const navigate = useNavigate()
 
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false)
   const [password, setPassword] = useState("");
-  useEffect(() => {
-    if (user?.email) {
-      toast.success("Already login, Redirecting...")
-      navigate("/menu");
-    }
-  }, [user, navigate]);
   const handleSubmit = async (e: React.SubmitEvent) => {
     setLoading(true)
     e.preventDefault()
@@ -43,6 +37,7 @@ export function LoginForm() {
       if (data.status === "success") {
         toast.success("Login Success")
         navigate("/menu", { replace: true });
+        setUser(data.user)
       }
     } catch (error: any) {
       toast.error(
