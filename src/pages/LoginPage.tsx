@@ -27,11 +27,11 @@ export function LoginForm() {
   const [loading, setLoading] = useState(false)
   const [password, setPassword] = useState("");
   useEffect(() => {
-    if (user.email !== "") {
+    if (user?.email) {
       toast.success("Already login, Redirecting...")
-      navigate('/menu')
+      navigate("/menu");
     }
-  }, [])
+  }, [user, navigate]);
   const handleSubmit = async (e: React.SubmitEvent) => {
     setLoading(true)
     e.preventDefault()
